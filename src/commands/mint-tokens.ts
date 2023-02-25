@@ -1,3 +1,11 @@
+import {
+  createMintToInstruction,
+  getAssociatedTokenAddress,
+} from '@solana/spl-token';
+import { PublicKey } from '@solana/web3.js';
+import { createAndSendTransaction, getKeypair } from '../utils';
+import { fromUserNumber } from '../utils/decimals';
+
 export async function mintTokens(
   name: string,
   password: string,
@@ -6,4 +14,23 @@ export async function mintTokens(
   amount: number
 ) {
   console.log(`Creating token...`);
+  const keypair = await getKeypair(name, password);
+  const associatedTokenAddress = await getAssociatedTokenAddress(
+    new PublicKey(mint),
+    new PublicKey(toPublicKey)
+  );
+  const signature = await createAndSendTransaction(
+    keypair,
+    [
+      createMintToInstruction(
+        new PublicKey(mint),
+        associatedTokenAddress,
+        keypair.publicKey,
+        fromUserNumber(amount)
+      ),
+    ],
+    [keypair]
+  );
+  console.log(`A total of ${amount} tokens of ${mint} minted.`);
+  console.log(`Signature: ${signature}.`);
 }

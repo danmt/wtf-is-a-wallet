@@ -1,4 +1,5 @@
 import { verify } from '@noble/ed25519';
+import { PublicKey } from '@solana/web3.js';
 
 export async function verifySignature(
   signature: string,
@@ -9,7 +10,7 @@ export async function verifySignature(
   const isVerified = await verify(
     new Uint8Array(Buffer.from(signature, 'base64')),
     Uint8Array.from(Buffer.from(message, 'utf-8')),
-    new Uint8Array(Buffer.from(publicKey, 'base64'))
+    new PublicKey(publicKey).toBytes()
   );
   console.log(`Signature ${isVerified ? 'valid' : 'invalid'}.`);
 }
